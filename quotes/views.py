@@ -28,8 +28,8 @@ def index(request):
     return HttpResponse(response_html)
 
     # Con comprehensionList
-    elemento_li_dia=[]
-
+    elemento_li_dia=[f'<li><a href={redirect_path}>{day.capitalize()}</a></li>' for day in days]
+    
 
 # si el day se manda como integer se acciona esta vista
 def days_week_with_number(request, day):
