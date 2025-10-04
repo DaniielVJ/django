@@ -27,6 +27,9 @@ def index(request):
     response_html = "<ul>" + list_items + "</ul>"
     return HttpResponse(response_html)
 
+    # Con comprehensionList
+    elemento_li_dia=[]
+
 
 # si el day se manda como integer se acciona esta vista
 def days_week_with_number(request, day):
