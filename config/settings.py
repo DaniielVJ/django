@@ -20,7 +20,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # Indicamos el paquete donde se encuentra la aplicacion a instalar
-    'quotes'
+    'quotes',
+    'landing'
 ]
 
 MIDDLEWARE = [
@@ -40,7 +41,10 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        # Aqui proporcionamos la ruta absoluta a las carpetas donde se encuentran los templates
+        'DIRS': [
+            BASE_DIR / "landing" / "templates",
+            ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
