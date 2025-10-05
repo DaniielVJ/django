@@ -36,13 +36,91 @@ Ahora si tenemos nuestra aplicacion instalada en el proyecto, simplemente tenien
 - **Django templates language:** Es un lenguaje especial que implementa django para poder utilizarlo junto al html template, y es el que nos permitira usar variables y mas cosas de python dentro de un documento html, otorgandole poderes al mismo. ya que de pasar a ser un archivo estatico, a pasar a ser un archivo que genera el contenido html de forma dinamica con los datos obtenidos de python.
 
 - **Enviar valores a un template html:** Para enviar valores al html y usarlos ahi dentro, debemos como tercer parametro a la funcion render pasarle un diccionario, donde cada elemento de este sera un valor de una variable o algo que queremos pasarle al html, el valor que queremos pasar al html se identifica adentro con el nombre de la key que se le asigno en el diccionaro.
+
 ```
 # Podemos pasar una variable o un valor en codigo duro al html, y lo podremos usar dentro de este con la key que se le asigno
 # en este caso name
 render(request, 'landing/home.html', {"name":"Daniel"})
 ```
+
 <br>
-e igualmente dentro del html para usar los valores que enviamos de python debemos escribir en el lenguaje de plantillas, para indicar a django que estamos escribiendo en lenguaje de plantillas en vez de html usamos llaves {} y dentro de esta escribimos en el lenguaje de plantillas. ahora los valores de variable se cargan con llaves igualmente dentro de las llaves del lenguaje de plantillas. EJ:
+e igualmente dentro del html para usar los valores que enviamos de python debemos escribir en el lenguaje de plantillas, para indicar a django que estamos escribiendo en lenguaje de plantillas en vez de html usamos llaves {} y dentro de esta escribimos en el lenguaje de plantillas. ahora los valores de variable se cargan con llaves igualmente dentro de las llaves del lenguaje de plantillas. EJ:<br>
+
 ```    
 <h2>Hola {{name}}</h2>
+```
+
+- **Filtros templates:** Los filtros permiten modificar el como se veran o como se mostraran los valores del template. Para aplicarlos hacemos {{variable | filter1}} o agregar mas filtros {{variable | filter1 | filter2}}. asi podemos modificar o transformar los valores para que se muestren de una forma u otra. 
+El filtro permite decorar el como se mostraran los datos
+
+- **Tags:** Son instrucciones que podemos utilizar para implementar una funcionalidad dentro de nuestro html.<br>
+Los tags se definen con la sintaxis {% tag argumento %}, algunos solo tienen apertura pero tambien pueden tener cierre EJ:
+
+``` 
+{% autoescape  on%}
+    {{Aqui se aplica el elemento que sera afectado o se le aplicara la funcionalidad del tag }}
+{% endautoescape %}
+```
+<br> Ejemplo el autoescape es un tag que implementa por defecto django en todos los html y lo que hace es que escapa los caracteres especiales de las variables que pasemos como <> y los remplaza por su codigo en html para que sea interpretado como texto como tal, desactivar el autoescape permite que se implemente el valor de la variable tal cual como lo definimos.
+EJ:
+
+```
+# Autoescape activado
+variable = "<script>alert('Hola')</script>"
+# Lo cargaria en el html de esta forma
+&lt;script&gt;alert('Hola')&lt;/script&gt; # no se aplicaria el script, si no que se mostraria un texto
+
+# Autoescape desactivado
+{% autoescape off %}
+# Todo lo que ponemos aqui dentro escapara 
+{{variable}} # se agrega tal cual como fue definida, se aplicara el script
+{% endautoescape %}
+
+# Evitamos que html escape a los caracteres especiales
+```
+<br>
+
+- **if tag**
+
+```
+    <!--Todo lo que este entre el tag de apertura y cierre se va agregar como parte del html si el argumento
+    es True o Truthy. Si es False no lo agregara en el html resultante-->
+    {% if name == 'Daniel' %}
+        <h1>¡Soy yo!</h1>
+    {% elif name == 'Felipe'%}
+        <h1>Hola amigo de la infancia</h1>
+    {% else %}
+        <h1>No te conozco</h1>
+    {% endif %}
+        
+```
+- **for tag**
+
+```
+<h2>Tecnologias que domino</h2>
+    <ul>
+        <!--Permite añadir el html que pasemos entre los tag por cada iteracion del iterable o la lista stack-->
+        {% for tecnologia in stack%}
+            <li>{{tecnologia}}</li>
+        {% empty %}
+            <li>No hay tecnologias por mostrar</li>
+        {% endfor %}
+    </ul>
+    {% comment %}  
+    Este tag permite agregar un comentario que solo se mostrara en el servidor, no sera agregado al
+    html que se enviara al usuario.
+
+    Aqui vemos como podemoms cargar la lista directamente en el html, y se vera en el mismo formato
+    que se muestra en el string cuando se imprime su representacion en cadena en la terminal
+    {% endcomment %}
+    <h2>{{stack}}</h2>
+
+    <!--Acceder a los elementos de una lista con indexacion en html-->
+    <ul>
+        <li>{{stack.0}}</li>
+        <li>{{stack.1}}</li>
+        <li>{{stack.2}}</li>
+        <li>{{stack.3}}</li>
+        <li>{{stack.4}}</li>
+    </ul>
 ```

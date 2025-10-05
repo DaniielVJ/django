@@ -5,10 +5,53 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
 </head>
-<body>
-    <h1>Hola mundo desde el template de la app landing</h1>
-    <h2>Un template es un HTML renderizado por django que enviamos al usuario</h2>
+<body>    
+    
+    <!--Todo lo que este entre el tag de apertura y cierre se va agregar como parte del html si el argumento
+    es True o Truthy. Si es False no lo agregara en el html resultante-->
+    {% if name == 'Daniel' %}
+        <h1>¡Soy yo!</h1>
+    {% elif name == 'Felipe'%}
+        <h1>Hola amigo de la infancia</h1>
+    {% else %}
+        <h1>No te conozco</h1>
+    {% endif %}
+        
+    <h2>
+    <!--Filtro para que el valor se muestre en mayusculas-->
+    Nombre: {{name | upper }}
+    </h2>    
+    <p>Edad: {{age}}</p>
+    <p>La fecha de hoy es {{today | date:"d/m/Y"}}</p>
+    <p>Fecha: {{today | date:"d-m-Y"}}</p>
 
-    <h2>Hola {{name}}</h2>
+
+    <h2>Tecnologias que domino</h2>
+    <ul>
+        <!--Permite añadir el html que pasemos entre los tag por cada iteracion del iterable o la lista stack-->
+        {% for tecnologia in stack%}
+            <li>{{tecnologia}}</li>
+        {% empty %} 
+            <li>No hay tecnologias por mostrar</li>
+        {% endfor %}
+    </ul>
+    {% comment %}  
+    Este tag permite agregar un comentario que solo se mostrara en el servidor, no sera agregado al
+    html que se enviara al usuario.
+
+    Aqui vemos como podemoms cargar la lista directamente en el html, y se vera en el mismo formato
+    que se muestra en el string cuando se imprime su representacion en cadena en la terminal
+    {% endcomment %}
+    <h2>{{stack}}</h2>
+
+    <!--Acceder a los elementos de una lista con indexacion en html-->
+    <ul>
+        <li>{{stack.0}}</li>
+        <li>{{stack.1}}</li>
+        <li>{{stack.2}}</li>
+        <li>{{stack.3}}</li>
+        <li>{{stack.4}}</li>
+    </ul>
+
 </body>
 </html>
