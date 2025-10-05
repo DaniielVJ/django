@@ -1,7 +1,8 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+
 
 # Create your views here.
 
 def home(request):
-    return HttpResponse("<h1>It's Works</h1>")
+    # Aqui enviamos como respuesta el renderizado de la plantilla html
+    return render(request, 'landing/home.html', {"name":"Daniel"})

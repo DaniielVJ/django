@@ -42,11 +42,10 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         # Aqui proporcionamos la ruta absoluta a las carpetas donde se encuentran los templates
-        'DIRS': [
-            BASE_DIR / "landing" / "templates",
-            ],
-        'APP_DIRS': True,
-        'OPTIONS': {
+        'DIRS': [],
+        # Habilitamos esta opcion como True, para que django cargue los templates de las aplicaciones de forma automatica
+        'APP_DIRS': True, # De forma automatica buscara los templates en una carpeta templates dentro de la aplicacion
+        'OPTIONS': { 
             'context_processors': [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
