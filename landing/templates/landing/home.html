@@ -1,12 +1,19 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
-</head>
-<body>    
-    
+<!--Indicamos que este html extiende del template base.html e implementara todo el html
+de base.html aqui dentro permitiendo reutilizar partes del html que sean comunes para todos los templates
+como headers, navs, footer, estructura html base, etc. Luego simplemente debemos indicar en los templates
+que extienden de otro a que block del template base añadiremos su contenido-->
+{% extends 'base.html' %}
+
+<!--Aqui especificamos que estos elementos o valores se añadiran en el block que se llame title del template
+que extendieron-->
+
+{% block title%}Home{% endblock%}
+{% block juanito %}
+    <h2>Hello World!!!</h2>
+{% endblock juanito%}
+
+
+{% block content %}
     <!--Todo lo que este entre el tag de apertura y cierre se va agregar como parte del html si el argumento
     es True o Truthy. Si es False no lo agregara en el html resultante-->
     {% if name == 'Daniel' %}
@@ -61,6 +68,10 @@
         <li>{{stack.3}}</li>
         <li>{{stack.4}}</li>
     </ul>
+{% endblock %}
 
-</body>
-</html>
+<h2>
+    Estoy fuera de un bloque por ende no se añade
+    dentro del html del cual extendemos
+</h2>
+
