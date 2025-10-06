@@ -124,3 +124,16 @@ variable = "<script>alert('Hola')</script>"
         <li>{{stack.4}}</li>
     </ul>
 ```
+
+- **url tag:** Permite añadir una url en el template html de forma dinamica solo especificando el name de esta y django se encargara de obtener y agregar el path completo al template html.
+
+```
+{% for tecnologia in stack%}
+    <!--django remplaza el tag de url por el path completo que le proporcionemosy se agregara en cualquier
+    parte de la web que lo agreguemos-->
+    <li><a href="{% url 'stack' tool=tecnologia.id %}">{{tecnologia.name}}</a></li>
+{% empty %} 
+    <li>No hay tecnologias por mostrar</li>
+{% endfor %}
+```
+

@@ -25,16 +25,25 @@
     <p>La fecha de hoy es {{today | date:"d/m/Y"}}</p>
     <p>Fecha: {{today | date:"d-m-Y"}}</p>
 
-
     <h2>Tecnologias que domino</h2>
     <ul>
         <!--Permite añadir el html que pasemos entre los tag por cada iteracion del iterable o la lista stack-->
         {% for tecnologia in stack%}
-            <li>{{tecnologia}}</li>
+            <!--django remplaza el tag de url por el path completo que le proporcionemosy se agregara en cualquier
+            parte de la web que lo agreguemos-->
+            <li><a href="{% url 'stack' tool=tecnologia.id %}">{{tecnologia.name}}</a></li>
         {% empty %} 
             <li>No hay tecnologias por mostrar</li>
         {% endfor %}
     </ul>
+
+
+    <!--Mas filtros-->
+    <h2>{{name | capfirst}}</h2>
+    <h2>{{text | capfirst}}</h2>
+    <h2>{{text | title}}</h2>
+
+
     {% comment %}  
     Este tag permite agregar un comentario que solo se mostrara en el servidor, no sera agregado al
     html que se enviara al usuario.
