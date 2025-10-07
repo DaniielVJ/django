@@ -58,7 +58,7 @@ def days_week_with_number(request, day):
 # Si el dia se manda como texto acciona esta vista
 def days_week(request, day):
     if day not in days_of_week:
-        return HttpResponseNotFound('No hay frase para ese dia')
+        return render(request, '404.html')
     return render(request, 'quotes/day.html', {'day':day, 'message': days_of_week[day]})
    
 

@@ -7,10 +7,15 @@
     <title>{% block title %}{% endblock %}</title>
 </head>
 <body>
+
+    <!--Los includes son codigo reutilizable para una app, templates base del proyecto, etc.-->
+    {% include 'includes/header.html' %}
+
+
+
     <!--Debemos especificar en que parte se va agregar el contenido HTML de los otros templates
     que extiendan de este template base-->
 
-    <center><h1>Titulo generico que tendran todas las paginas</h1></center>
     {% block content %} 
     
     {% endblock content %}
