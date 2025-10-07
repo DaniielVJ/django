@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseNotFound, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseNotFound, HttpResponseRedirect, Http404
 from django.urls import reverse
 
 # Si el dia que el usuario envia coincide con alguna clave del diccionario
@@ -58,7 +58,13 @@ def days_week_with_number(request, day):
 # Si el dia se manda como texto acciona esta vista
 def days_week(request, day):
     if day not in days_of_week:
-        return render(request, '404.html', status=404)
+        # Si no se encuentra el dia podemos lanzar una excepcion 404 que incluye django que permitira
+        # mandar un 404 al usuario, ahora esto nos puede lanzar error si se usa con el debug=True en el modo de
+        # desarrollo pero no asustarse pq en produccion lanzara el template para 404
+        # Este de forma automatica django buscara en los templates un archivo 404.html asegurarnos de llamar el archivo html
+        # como el codigo de estado
+        raise Http404() # No la capturamos nosotros, porque queremos que django maneje esa excepcion, no nosotros
+        # return render(request, '404.html', status=404) # plantilla personalizada
     return render(request, 'quotes/day.html', {'day':day, 'message': days_of_week[day]})
    
 
