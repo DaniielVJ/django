@@ -8,7 +8,8 @@ from . import views
 
 # Siempre el patron de urls se define en una variable con este nombre
 urlpatterns = [
-    path('', views.index),
+    path('', views.home),
+    path('index/', views.index),
     path('<int:day>', views.days_week_with_number), # path que responde si se envia un numero
     path('<str:day>', views.days_week, name='day-quote') # este responde si se envia un texto
 ]

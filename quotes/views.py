@@ -14,6 +14,9 @@ days_of_week={
     'sunday': 'Da un poquito mas todos los dias'
 }
 
+def home(request):
+    return render(request, 'quotes/home.html', {'days': list(days_of_week.keys())})
+
 
 # Generamos HTML desde string y lo enviamos al cliente
 def index(request):
