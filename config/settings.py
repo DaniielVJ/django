@@ -102,12 +102,15 @@ STATIC_URL = 'static/' # Es para indicar que url o location debe usar el servido
 
 # Esta constante la usamos cuando tenemos carpetas con archivos estaticos fuera de las aplicaciones o que no son
 # de las aplicaciones
-
+STATICFILES_DIRS=[ # Al crearla decimos a django que cargaremos estilos de otros directorios(globales)
+    BASE_DIR / 'static',
+    
+    ] 
 
 # Esta constante indicamos la ruta a la carpeta donde se almacenaran todos los archivos estaticos del proyecto
 # entero y todas las aplicaciones al momento de lanzarlo a produccion, para que un proxy server se encargue de
 # servirlo.
-
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Aqui indicamos el directorio o la ruta de la carpeta donde se encuentran los estaticos y que podran
 # ser accedidos a traves de la url en STATIC_URL
