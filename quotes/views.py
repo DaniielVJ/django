@@ -15,6 +15,10 @@ days_of_week={
 }
 
 
+def home(request):
+    days=list(days_of_week.keys())
+    return render(request, 'quotes/home.html', {'days': days})
+
 # Generamos HTML desde string y lo enviamos al cliente
 def index(request):
     list_items = ""
@@ -53,10 +57,9 @@ def days_week_with_number(request, day):
 
 # Si el dia se manda como texto acciona esta vista
 def days_week(request, day):
-    # Mi version de logica
     if day not in days_of_week:
         return HttpResponseNotFound('No hay frase para ese dia')
-    return HttpResponse(days_of_week[day])
+    return render(request, 'quotes/day.html', {'day':day, 'message': days_of_week[day]})
    
 
     # Version del profe
