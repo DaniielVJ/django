@@ -18,6 +18,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    # Asegurarse que la aplicacion staticfiles de django este instalada, para trabajar con archivos estaticos
     'django.contrib.staticfiles',
     # Indicamos el paquete donde se encuentra la aplicacion a instalar
     'quotes',
@@ -97,7 +98,16 @@ USE_TZ = True
 
 # Indicamos que ruta debe utilizar en la url el navegador o proxy para acceder a los archivos estaticos
 # de nuestro proyecto django
-STATIC_URL = 'static/'
+STATIC_URL = 'static/' # Es para indicar que url o location debe usar el servidor proxy para acceder a los estaticos
+
+# Esta constante la usamos cuando tenemos carpetas con archivos estaticos fuera de las aplicaciones o que no son
+# de las aplicaciones
+
+
+# Esta constante indicamos la ruta a la carpeta donde se almacenaran todos los archivos estaticos del proyecto
+# entero y todas las aplicaciones al momento de lanzarlo a produccion, para que un proxy server se encargue de
+# servirlo.
+
 
 # Aqui indicamos el directorio o la ruta de la carpeta donde se encuentran los estaticos y que podran
 # ser accedidos a traves de la url en STATIC_URL

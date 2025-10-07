@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!--Debemos dar un nombre a los tag block para identificarlos en los otros templates-->
     <title>{% block title %}{% endblock %}</title>
+    <!--Creamos un bloque para que cada template cargue sus propios estilos en el base.html-->
+    {% block page_styles %}{% endblock page_styles %}
+    <!--Asi evitamos cargar estilos en el base y obligamos que todos los templates carguen los mismos estilos
+    aunque podemos hacerlo si queremos.-->
 </head>
 <body>
 

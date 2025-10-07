@@ -1,10 +1,30 @@
 
 {% extends 'base.html' %}
 
+<!--Este tag indica a django que usaremos archivos estaticos en este template, asi que se prepare
+para resolver las rutas a estos archivos correctamente-->
+{% load static%}
 
 
 {% block title %}Home{% endblock title %}
     
+
+<!--Añadimos los estilos en este bloque, que añade todo lo que pongamos en este template
+en el head de base.html-->
+{% block page_styles %}
+
+<!--Para cargar la ruta a los archivos estaticos usamos el tag static y pasamos la ruta desde la carpeta static
+hasta el archivo estatico que queremos cargar-->
+    <link rel="stylesheet" href="{% static 'quotes/css/quotes_styles.css' %}">
+
+
+<!--Lo hacemos en un bloque cuando queremos que cada template que extiende de la misma base.html
+implemente sus propios estilos y si tenemos multiples templates de la misma app que implementan
+los mismos estilos podriamos incluir un fragmento que ya implemente dichos estilos-->
+
+{% endblock page_styles %}
+
+
 
 {% block content %}
 
