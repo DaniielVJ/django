@@ -60,9 +60,13 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 
 
+# Aqui configuramos que base de datos usara nuestro proyecto de django
 DATABASES = {
     'default': {
+        # Por defecto django utiliza sqlite para almacenar los datos del programa
         'ENGINE': 'django.db.backends.sqlite3',
+        # Aqui indicamos el nombre del archivo que contiene toda la base de datos con las tablas y datos
+        # de nuestras entidades en el programa
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
@@ -104,7 +108,6 @@ STATIC_URL = 'static/' # Es para indicar que url o location debe usar el servido
 # de las aplicaciones
 STATICFILES_DIRS=[ # Al crearla decimos a django que cargaremos estilos de otros directorios(globales)
     BASE_DIR / 'static',
-    
     ] 
 
 # Esta constante indicamos la ruta a la carpeta donde se almacenaran todos los archivos estaticos del proyecto
