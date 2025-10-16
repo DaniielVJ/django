@@ -22,7 +22,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # Indicamos el paquete donde se encuentra la aplicacion a instalar
     'quotes',
-    'landing'
+    'landing',
+    'minilibrary',
 ]
 
 MIDDLEWARE = [
