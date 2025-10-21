@@ -1,6 +1,6 @@
 from pathlib import Path
 
-
+# Se recomienda que base dir siempre almacene la ruta del proyecto
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-!^4wxo6s4bc%pm(l#pu426!@@dl!73ww4gg^3lzx#ec(hwwt@_'
