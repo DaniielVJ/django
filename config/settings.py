@@ -121,3 +121,6 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Aqui se indica cual es el tipo de campo que se usara por defecto en la clave primaria
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Si queremos definir nuestro propio modelo usuario debemos definirlo en esta constante
+# AUTH_USER_MODEL = 'miapp.models.MyUserModel'
