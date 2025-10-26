@@ -15,12 +15,17 @@ class Author(models.Model):
     
     def __str__(self):
         # Permite indicar como se vera cada objeto de una clase en formato de texto
-        return f"{self.__class__.__name__}(name={self.name}, birth_day={self.birth_day})"
+        return f"{self.__class__.__name__}(name={self.name}, birth_day={self.birth_date})"
 
 
 class Genre(models.Model):
     # no puede haber generos con un name repetido
     name = models.CharField(max_length=50, null=False, unique=True)
+    
+    class Meta:
+        verbose_name = "Genero"
+        verbose_name_plural = "Generos"
+
 
     def __str__(self):
         return self.name
@@ -43,9 +48,14 @@ class Book(models.Model):
     # con muchos objetos de otro modelo
     genres = models.ManyToManyField(Genre, related_name="books") # Indicamos con que modelo o tabla es la relacion de mucho a muchos
 
-    # Relacion muhcos a muchos pero usando un modelo personalizado como tabla intermedia
+    # Relacion muchos a muchos pero usando un modelo personalizado como tabla intermedia
     recommendation_by = models.ManyToManyField(User, through="Recommendation", related_name="recommendations")
     
+    class Meta:
+        # Define con que nombres se mostrara el modelo en el panel web del django admin
+        verbose_name = 'Libro' # singular
+        verbose_name_plural = 'Libros' 
+
     def __str__(self):
         return self.title
 
@@ -86,6 +96,8 @@ class Loan(models.Model):
     def __str__(self):
         return f"{self.user} ---> {self.book} en {self.loan_date} ({'Devuelto' if self.is_returned else 'Prestado'})"
     
+    def __str__2(self):
+        return 'Prestamo'
     
 # Nosotros definimos un Modelo que sera la tabla intermedia
 class Recommendation(models.Model):
