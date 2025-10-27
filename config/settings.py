@@ -1,5 +1,6 @@
 from pathlib import Path
 
+
 # Se recomienda que base dir siempre almacene la ruta del proyecto
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -92,7 +93,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'es-ch'
 
 TIME_ZONE = 'UTC'
 
@@ -124,3 +125,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Si queremos definir nuestro propio modelo usuario debemos definirlo en esta constante
 # AUTH_USER_MODEL = 'miapp.models.MyUserModel'
+

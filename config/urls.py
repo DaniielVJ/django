@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
-
+from .admin_config import configurar_panel_django_admin
 # include, permite incluir rutas que tengamos definidas en otro modulo distinto al principal (ROOT_URLCONF)
 
 urlpatterns = [
@@ -10,3 +10,7 @@ urlpatterns = [
     # de la ruta que definimos como primer argumento en la funcion path
     path('landings/', include('landing.urls'))
 ]
+
+
+
+configurar_panel_django_admin()

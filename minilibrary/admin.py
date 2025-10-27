@@ -3,6 +3,19 @@ from django.contrib import admin
 from .models import Book, BookDetail, Author, Genre, Recommendation, Review, Loan
 from django.contrib.auth.admin import UserAdmin
 
+# Crear Actions
+@admin.action(description="Marcar devuelto")
+def mark_loan_as_returned(model_admin, request, queryset):
+    # parametro queryset almacena el queryset con los objetos
+    # seleccionados en el admin para aplicar el action
+    queryset.filter(is_returned=False).update(is_returned=True)
+
+
+@admin.action(description="Mostrar fecha de entrega")
+def show_return_date(model_admin, request, queryset):
+    model_admin.list_display.append('return_date')
+
+
 
 # Crear un inline de tipo tabular
 class ReviewInline(admin.TabularInline):
@@ -73,20 +86,47 @@ class BookAdmin(admin.ModelAdmin): # Debe heredar de ModelAdmin, convencion teng
         ('Mas información', {"fields": ('isbn', 'pages')}),
     )
 
+    # Una vez especificado los campos con autocompletado, se debe especificar en sus modeladmin, cuales
+    # seran los campos de busqueda por los cuales se hara el autocompletado
+    autocomplete_fields = ['author', 'genres']
 
+    # Sobreescribimos metodos
+
+    # Este metodo sirve para indicar si el usuario puede añadir permisos
+    # aqui retornamos que si el usuario del que interactua con el servidor o backend envia request
+    # es superuser puede hacerlo. añadir permisos
+    def has_add_permission(self, request):
+        return request.user.is_superuser
+    
+    # Aqui definimos que si tiene el permiso de modificar, para modificar este modelo
+    def has_change_permission(self, request, obj=None):
+        return request.user.is_staff
+
+    
+    # Literalmente el tipo de usuario que retornemos se le otorgan esos permisos.
+    
+    # Los permisos de codigo tiene prioridad sobre los de el admin, ya que estos sirven para proteger el modelo
+    # indicando que tipo de usuario puede hacer que cosa, y aunque este en un grupo que le de el permiso de agregar
+    # aqui estamos protegiendo que solo puede hacerlo el superuusario asi que no tendra la opcion.
 
 @admin.register(Author)
 class AuthorAdmin(admin.ModelAdmin):
     inlines = (BookInline, )
+    # Esto indica que el campo con autocompletado buscara por el nombre del autor 
+    # o autocompletara por el nombre
+    search_fields = ('name', )
 
+@admin.register(Genre)
+class GenreAdmin(admin.ModelAdmin):
+    search_fields = ('name', )
 
 @admin.register(Loan)
 class LoanAdmin(admin.ModelAdmin):
-    list_display = ('user__username', 'book__title', 'is_returned', 'loan_date')
+    list_display = ['user__username', 'book__title', 'is_returned', 'loan_date']
     # Establecer campos de solo lectura, el usuario no podra modificar desde el admin
     readonly_fields = ('loan_date',) 
-   
-
+    actions = (mark_loan_as_returned, show_return_date)
+    raw_id_fields = ('user', 'book')
 
 
 # Aqui registramos los modelos
@@ -94,7 +134,7 @@ class LoanAdmin(admin.ModelAdmin):
 # Para usar las configuraciones personalizadas, debemos registrarlas junto a su modelo
 # admin.site.register(Book, BookAdmin)
 admin.site.register(BookDetail)
-admin.site.register(Genre)
+# admin.site.register(Genre)
 admin.site.register(Recommendation)
 admin.site.register(Review)
 # admin.site.register(Loan)
