@@ -93,11 +93,19 @@ class Loan(models.Model):
     return_date = models.DateTimeField(null=True, blank=True, auto_now=True)
     is_returned = models.BooleanField(default=False)
     
+    # Usa este enfoque django de clase anidada para aplicar config, por el echo de que
+    # debe separar que un atributo es un campo del modelo y otro es de configuracion
+    # entonces para eso dice que se metan dentro de una clase Meta, y todo los atributos
+    # que esten ahi dentro no los tomara como campos de la tabla si no como configuracion
+    class Meta:
+        verbose_name = "Prestamo"
+        verbose_name_plural = "Prestamos"
+    
+    
+    
     def __str__(self):
         return f"{self.user} ---> {self.book} en {self.loan_date} ({'Devuelto' if self.is_returned else 'Prestado'})"
     
-    def __str__2(self):
-        return 'Prestamo'
     
 # Nosotros definimos un Modelo que sera la tabla intermedia
 class Recommendation(models.Model):

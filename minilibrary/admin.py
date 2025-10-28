@@ -1,9 +1,10 @@
 from django.contrib import admin
 # Primero debemos importar los modelos que queremos registrar
 from .models import Book, BookDetail, Author, Genre, Recommendation, Review, Loan
+# UserAdmin es la que se encarga de personalizar como se va a ver y hacer con el Modelo Users en el django admin
 from django.contrib.auth.admin import UserAdmin
 
-# Crear Actions
+# Crear Actions - Funciones que actuan sobre un conjunto de objetos seleccionados desde el admin
 @admin.action(description="Marcar devuelto")
 def mark_loan_as_returned(model_admin, request, queryset):
     # parametro queryset almacena el queryset con los objetos
