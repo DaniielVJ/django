@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block page_styles %}
+
+<!--tag static, sirve para indicarle a django que el cargue la ruta del archivo estatico
+dentro de una carpeta static que nosotros indicemos-->
+<link rel="stylesheet" href="{% static  'minilibrary/css/estilo.css' %}">
+
+{% endblock page_styles %}
+
+{% block title %}Minilibrary{% endblock title %}
+
+{% block content %}
+
+<h2>App Minilibrary</h2>
+
+<form class="search">
+    <div >
+        <label for="search">Buscar por: </label>
+        <!--El name se especifica con que nombre se recibira el valor del input en una view de django
+        por el request-->
+        <input type="text" id="search" name="query_search" placeholder="Busca por titulo o autor"
+        
+        {% if query_search %}
+            value="{{query_search}}"
+        {% endif %}
+            
+        />
+    </div>
+
+    <!--Se requiere un boton para enviar la informacion de un formulario a una url y view-->
+    <div>
+        <input type="submit" value="Enviar"/>
+    </div>
+    <!--QUE OCURRE CUANDO SE APRETA EL BOTON EN UN FORMULARIO:
+    Cuando se presiona un boton en un formulario por defecto (no ha sido modificado por javascript en un addEventListener) 
+    ocurre que la informacion añadida a los inputs se envian a la url dentro del request usando el metodo GET
+    y si la url al que se envia la informacion responde con un resultado por ejemplo un html renderizado este
+    lo recibe recarga la web completa y procesa ese html para mostrarlo al usuario -->
+
+    <!--Podemos modificar el comportamiento por defecto con javascript usando un event.preventDefault() si queremos
+    manipular de otra forma el envio de informacion en un formulario-->
+</form>
+
+<div>
+    <h2>Libros</h2>
+    <ol>
+        
+        {% for book in books %}
+            <li>{{book.title}} - {{book.author.name}}</li>
+        {% empty %}
+            <h3 class="text-red">NO HAY LIBROS DISPONIBLES</h3>
+        {% endfor %}
+            
+    </ol>
+</div>
+
+
+{% endblock content %}

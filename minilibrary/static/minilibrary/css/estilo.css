@@ -1,0 +1,15 @@
+.search {
+    display: flex;
+}
+
+
+/* Uso hijos directo mejor porque quiero aplicar estos estilos solo a los
+hijos directo del elemento html que tiene la clase search  no a todos los anidados */
+.search > div {
+    margin: 5px;
+}
+
+/* utility first method name class */
+.text-red {
+    color: red;
+}
