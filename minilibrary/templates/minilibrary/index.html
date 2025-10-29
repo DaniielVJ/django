@@ -5,7 +5,7 @@
 {% block page_styles %}
 
 <!--tag static, sirve para indicarle a django que el cargue la ruta del archivo estatico
-dentro de una carpeta static que nosotros indicemos-->
+dentro de una carpeta static que nosotros indiquemos-->
 <link rel="stylesheet" href="{% static  'minilibrary/css/estilo.css' %}">
 
 {% endblock page_styles %}
@@ -30,6 +30,17 @@ dentro de una carpeta static que nosotros indicemos-->
         />
     </div>
 
+    <!--Filtros de fecha-->
+    <div>
+        <label for="fecha">Filtre por fecha:</label>
+        <!--Accedemos a los valores del request que se envia del front o template 
+        para añadir aqui que esos son los valores por defecto que deben mostrarse, si llegara el caso
+        de que no han enviado valor se añadira el valor vacio por defecto de un input tipo date-->
+        <input type="date" name="start" value={{request.GET.start}} />
+        <input type="date" name="end" value={{request.GET.end}}  />
+    </div>
+
+
     <!--Se requiere un boton para enviar la informacion de un formulario a una url y view-->
     <div>
         <input type="submit" value="Enviar"/>
@@ -44,17 +55,58 @@ dentro de una carpeta static que nosotros indicemos-->
     manipular de otra forma el envio de informacion en un formulario-->
 </form>
 
+
+<!--Este div o contenedor es la seccion donde cargamos todos los libros de la pagina que nos entregue
+la view y ademas de añadir el menu html grafico para que el usuario solicite una pagina sin necesidad
+de solicitarla por la url del navegador-->
 <div>
     <h2>Libros</h2>
-    <ol>
+    <ul>
         
-        {% for book in books %}
+        {% for book in page_books %}
             <li>{{book.title}} - {{book.author.name}}</li>
         {% empty %}
             <h3 class="text-red">NO HAY LIBROS DISPONIBLES</h3>
         {% endfor %}
+        
+    </ul>
+
+     
+    
+    <div>
+        <!--Programamos el html que permite al usuario utilizar el paginador-->
+
+        <!--Preguntamos a la pagina actual que estamos usando en el template si es que
+        tiene una pagina previa o anterior, ya que si es la primera no tendria-->
+        {% if page_books.has_previous %}
+        <!--Si no pasamos una url al enlace, por defecto acciona o accede al mismo url donde
+        estamos ubicados y ademas podemos pasarle datos-->
+            <a href="?{%if query_search%}query_search={{query_search}}&{%endif%}page=1&start={{request.GET.start}}&end={{request.GET.end}}">Primera</a>
+            <!--Carga la pagina anterior a la que estamos ubicados o esta ubicado el usuario en el template-->
+            <a href="?{%if query_search%}query_search={{query_search}}&{%endif%}page={{page_books.previous_page_number}}&start={{request.GET.start}}&end={{request.GET.end}}">Anterior</a>
+        {% endif %}
+
+        <!--Numero de la pagina donde estamos ubicados-->
+        <span>Página {{page_books.number}} de {{page_books.paginator.num_pages}} páginas</span>
+
+        <!--Ahora implementamos los botones para irnos a la siguiente pagina y a la ultima-->
             
-    </ol>
+        {% if page_books.has_next %}
+            <a href="?{%if query_search%}query_search={{query_search}}&{%endif%}page={{page_books.next_page_number}}&start={{request.GET.start}}&end={{request.GET.end}}">Siguiente</a>
+            <a href="?{%if query_search%}query_search={{query_search}}&{%endif%}page={{page_books.paginator.num_pages}}&start={{request.GET.start}}&end={{request.GET.end}}">Ultima</a>
+        {% endif %}
+            
+            
+    </div>
+    
+    
+    {% comment %} <form>
+       <!--La etiqueta form envia el value de todos los input que esten dentro de ella
+        pero si es de type submit y hay muchos solo envia el value del que fue presionado-->
+        <input type="submit" name="page" value=1>
+        <input type="submit" name="page" value=2>
+        <input type="submit" name="page" value=3>
+    </form> {% endcomment %}
 </div>
 
 

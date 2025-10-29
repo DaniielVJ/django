@@ -12,6 +12,6 @@ urlpatterns = [
     path('minilibrary/', include('minilibrary.urls'))
 ]
 
-
+ 
 
 configurar_panel_django_admin()
