@@ -62,6 +62,21 @@ def index(request):
         # y esa enviemos en el template para mostrarle al usuario en el navegador
         page_books = paginator.get_page(page_number)
         
+        # generamos una copia del diccionario
+        query_params = request.GET.copy()
+        
+        # Eliminamos el parametro de page en nuestro query params porque no lo necesitamos
+        # aparte esa info de la pagina la maneja el paginador
+        if "page" in query_params:
+            query_params.pop("page")
+        
+        # Este metodo django se lo agrega a los diccionarios, para convertir todos los parametros que
+        # recibimos por GET que ahora estan en un diccionario en una url
+        query_string = query_params.urlencode() 
+        # Esto significa que en vez de que cada elemento sea en este formato -> key:value,key2:value 
+        # se vera -> key=value&key2=value en un string
+        
+        
         # page es un objeto que almacena un numero de objetos determinado
         # en este caso el paginador se encargo de definir cuantos objetos tendra cada page
         
@@ -74,6 +89,7 @@ def index(request):
             # Mandamos los libros paginados o la pagina con los libros
             'page_books': page_books,
             'query_search': query_search,
+            'query_string': query_string,
             
         })
     except Exception:

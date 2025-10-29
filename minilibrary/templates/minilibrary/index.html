@@ -36,8 +36,8 @@ dentro de una carpeta static que nosotros indiquemos-->
         <!--Accedemos a los valores del request que se envia del front o template 
         para añadir aqui que esos son los valores por defecto que deben mostrarse, si llegara el caso
         de que no han enviado valor se añadira el valor vacio por defecto de un input tipo date-->
-        <input type="date" name="start" value={{request.GET.start}} />
-        <input type="date" name="end" value={{request.GET.end}}  />
+        <input type="date" name="start" value="{{request.GET.start}}" />
+        <input type="date" name="end" value="{{request.GET.end}}"  />
     </div>
 
 
@@ -64,7 +64,7 @@ de solicitarla por la url del navegador-->
     <ul>
         
         {% for book in page_books %}
-            <li>{{book.title}} - {{book.author.name}}</li>
+            <li>{{book.title}} - {{book.author.name}} - {{book.publication_date }}</li>
         {% empty %}
             <h3 class="text-red">NO HAY LIBROS DISPONIBLES</h3>
         {% endfor %}
@@ -81,9 +81,9 @@ de solicitarla por la url del navegador-->
         {% if page_books.has_previous %}
         <!--Si no pasamos una url al enlace, por defecto acciona o accede al mismo url donde
         estamos ubicados y ademas podemos pasarle datos-->
-            <a href="?{%if query_search%}query_search={{query_search}}&{%endif%}page=1&start={{request.GET.start}}&end={{request.GET.end}}">Primera</a>
+            <a href="?page=1&{{query_string}}">Primera</a>
             <!--Carga la pagina anterior a la que estamos ubicados o esta ubicado el usuario en el template-->
-            <a href="?{%if query_search%}query_search={{query_search}}&{%endif%}page={{page_books.previous_page_number}}&start={{request.GET.start}}&end={{request.GET.end}}">Anterior</a>
+            <a href="?page={{page_books.previous_page_number}}&{{query_string}}">Anterior</a>
         {% endif %}
 
         <!--Numero de la pagina donde estamos ubicados-->
@@ -92,8 +92,8 @@ de solicitarla por la url del navegador-->
         <!--Ahora implementamos los botones para irnos a la siguiente pagina y a la ultima-->
             
         {% if page_books.has_next %}
-            <a href="?{%if query_search%}query_search={{query_search}}&{%endif%}page={{page_books.next_page_number}}&start={{request.GET.start}}&end={{request.GET.end}}">Siguiente</a>
-            <a href="?{%if query_search%}query_search={{query_search}}&{%endif%}page={{page_books.paginator.num_pages}}&start={{request.GET.start}}&end={{request.GET.end}}">Ultima</a>
+            <a href="?page={{page_books.next_page_number}}&{{query_string}}">Siguiente</a>
+            <a href="?page={{page_books.paginator.num_pages}}&{{query_string}}">Ultima</a>
         {% endif %}
             
             
