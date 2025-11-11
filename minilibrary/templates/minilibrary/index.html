@@ -64,7 +64,7 @@ de solicitarla por la url del navegador-->
     <ul>
         
         {% for book in page_books %}
-            <li>{{book.title}} - {{book.author.name}} - {{book.publication_date }}</li>
+            <li><a href="{% url 'recomendar_libro' book_id=book.id%}">{{book.title}} - {{book.author.name}} - {{book.publication_date }}</a></li>
         {% empty %}
             <h3 class="text-red">NO HAY LIBROS DISPONIBLES</h3>
         {% endfor %}

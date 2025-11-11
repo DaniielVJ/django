@@ -6,8 +6,6 @@ User = get_user_model()
 
 # Aqui creamos los modelos o clases que representan las tablas de la base de datos
 # Cada clase es una tabla en el ORM
-
-
 class Author(models.Model):
     name = models.CharField(max_length=100, null=False) 
     birth_date = models.DateField(null=True, blank=True)
@@ -81,7 +79,7 @@ class Review(models.Model):
     rating = models.PositiveIntegerField()
     text = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
-    
+
     def __str__(self):
         return f"{self.user} --> {self.book} ({self.rating}/5)"
     

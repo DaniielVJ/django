@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+
+
+{% block title %}
+    Añadir Review {{book.title}}
+{% endblock title %}
+
+
+
+{% block content %}
+    <h2>Ingresa tu reseña para {{book.title}}</h2>
+    <form action="{% url 'recomendar_libro' book_id=book.id%}" method="POST">
+        <!--Este tag se utiliza para que django genere un token para validar al formulario cuando
+        envie datos a la url por el request, y asi solo procesar datos de formularios validos y no de
+        terceros o dañinos-->
+        {% csrf_token %} <!--Si no tiene ese token, django no aceptara los datos del formulario, solo se pide para POST, PUT, DELETE-->
+
+        <!--Los campos se envian en el request POST con el mismo nombre que se le dio en los atributos de la clase del formulario-->
+        
+        <!--Esto devuelve todos los campos del formulario definidos en python en codigo html dentro de un div cada campos
+        para poder generarlo o renderizarlo en el navegador-->
+        {{form.as_div}}
+
+
+        <!--Boton a presionar para que se envie el formulario-->
+        <div>
+            <input type="submit" />
+        </div>
+    </form>
+{% endblock content %}
+    

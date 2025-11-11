@@ -1,11 +1,16 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import Http404
-from .models import Book
 # Poder hacer condiciones con operadores logicos en los filtros
 from django.db.models import Q
 # Importamos el Paginador del modulo paginator, que incluye todas las funcionalidades para implementar un paginador
 from django.core.paginator import Paginator # Gestiona todos los objetos Page que tienen la divison de objetos
+from django.contrib.auth import get_user_model
+from django.contrib import messages
 from .utils import funciones
+from .models import Book, Review
+from .forms import ReviewSimpleForm, ReviewModelForm
+
+User = get_user_model()
 
 # Create your views here.
 def index(request):
@@ -96,3 +101,60 @@ def index(request):
         # Esta excepcion si queremos que la capture el gestor o capturador de excepciones de django
         # ya que esta programado que cuando sea una excepcion Http404() retornara el template 404.html
         raise Http404()
+
+
+
+def recomendar_libro(request, book_id):
+    book = get_object_or_404(Book, id=book_id)
+    form = ReviewSimpleForm(request.POST or None)    
+
+    
+    if request.method == 'POST':
+        if form.is_valid():
+            rating = form.cleaned_data["rating"]
+            text = form.cleaned_data["text"]
+            user = request.user if request.user.is_authenticated else User.objects.first()
+            Review.objects.get_or_create(user=user, book=book, rating=rating, text=text)
+            
+            messages.success(request, 'Review creada con exito')
+            # Los rederict por defecto son con metodo GET, significa que envian un request a la url que le pasemos
+            # y el segundo argumento pasamos parametros que se puedan enviar en a esa url si esta es dinamica y acepta eso
+            return redirect("recomendar_libro", book_id=book_id)
+        else:
+            messages.error(request, "Corrige los errores del formulario")
+    return render(request, 'minilibrary/add_review.html', {'form': form, 'book': book})
+
+
+    
+def add_review(request, book_id):
+    book = get_object_or_404(Book, id=book_id)
+    form = ReviewModelForm(request.POST or None)
+
+    # form implementa iter, asi que podemos iterarlo, donde cada elemento es un field o campo del formulario
+    # en su formato html,  form.visible_fields() -> trae los campos visibles solamente que son los que se mostraran en el html
+    for field in form:
+        # son objetos pero al imprimirlos se muestra su forma en html
+        # acceder al texto que se muestra del campo en el html
+        print(field.label)
+        # regresa el html del label completo
+        print(field.label_tag())
+        # acceder al campo en si, el input en formato html
+        print(field) # su version imprimible es un string con el html
+
+    if request.method == 'POST':
+        
+        if form.is_valid():
+            # commit False, permite que en vez de crear un objeto del modelo y guardarlo en su tabla, simplemente
+            # nos regrese el objeto del modelo con los campos que tengan valor.
+            review = form.save(commit=False)
+            # Al objeto del modelo review, que es la review indicamos el libro al cual esta asocida
+            review.book = book
+            # Indicamos el usuario que hizo la review (el que mando el request y esta autenticado)
+            review.user = request.user if request.user.is_authenticated else User.objects.first()
+            # Almacenamos la review en la tabla de su modelo Review
+            review.save()
+            messages.success(request, 'Review añadida exitosamente')
+            redirect('add_review', book_id=book.id)
+        else:
+            messages.error(request, 'Proporciona los datos correctos de los campos del formulario')
+    return render(request, 'minilibrary/add_review2.html', {'form': form, 'book': book})
