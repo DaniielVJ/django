@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+
+{% block title %}
+    {{book.title}}
+{% endblock title %}
+    
+
+
+{% block content %}
+    <h2>Detalles de {{book.title}}</h2>
+    <p>fecha de publicacion: {{book.publication_date}}</p>
+    <p>numero de paginas: {{book.pages}}</p>
+    <p>autor: {{book.author.name}}</p>
+    <p>ISBN: {{book.isbn}}</p>
+
+     
+    {% if book.detail %}
+        <p>Lenguaje: {{book.detail.language}}</p>
+        <p>
+            <h4>Sipnosis</h4>
+            {{book.detail.summary}}
+        </p>
+    {% endif %}
+        
+    <a href="{% url 'list_books' %}">Volver atras</a>
+
+    <a href="{% url 'add_review2' pk=book.id %}">Añadir Review</a>
+
+
+    
+    {% for review in book.reviews.all %}
+        <hr>
+        <h6>Usuario: {{review.user.username}}</h6>
+        <p>RATING: {{review.rating}}</p>
+        <p>COMENTARIO: {{review.text}}</p>
+        <a href="{% url 'update_review' pk=review.id %}">Editar Review</a>
+        <a href="{% url 'delete_review' pk=review.id %}">Eliminar Review</a>
+        <hr>
+    {% endfor %}
+        
+{% endblock content %}
+    

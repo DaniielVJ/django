@@ -1,18 +1,269 @@
+import time
 from django.shortcuts import render, get_object_or_404, redirect
-from django.http import Http404
+from django.http import Http404, HttpResponse
+from django.urls import reverse_lazy
 # Poder hacer condiciones con operadores logicos en los filtros
 from django.db.models import Q
 # Importamos el Paginador del modulo paginator, que incluye todas las funcionalidades para implementar un paginador
 from django.core.paginator import Paginator # Gestiona todos los objetos Page que tienen la divison de objetos
 from django.contrib.auth import get_user_model
 from django.contrib import messages
+from django.views import View
+from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView, DeleteView
 from .utils import funciones
 from .models import Book, Review
 from .forms import ReviewSimpleForm, ReviewModelForm
 
+
 User = get_user_model()
 
-# Create your views here.
+# Function-Based View
+def hello_fbv(request):
+    return HttpResponse("Saludos desde una view basada en funciones")
+
+# Class-Based View
+class HelloCBV(View):
+    # View es la base de las CBV asi que no le sobreescribimos los metodos get, post, put, etc. ya que esta
+    # no los implementa solo se encarga de crear la logica para pasarle el request correspondiente a esos metodos
+    # si fuera una clase que hereda de View como las genericas o mixins esas si le sobreescribimos sus metodos
+    # la cosa es que podemos crear metodos con todos estos nombres para utilizar en nuestra CBV que View enrutara la request:
+    """
+    http_method_names = [
+        "get",
+        "post",
+        "put",
+        "patch",
+        "delete",
+        "head",
+        "options",
+        "trace",
+    """
+    def get(self, request, *args, **kwargs):
+        return HttpResponse("Saludos desde una view basada en clases")
+        
+
+class WelcomeView(TemplateView):
+    # sobreescribimos este atributo, con el nombre del template que debe renderizar
+    # esta view cuando una url lo mande a llamar porque recibio un request http get
+    template_name = "minilibrary/welcome.html"
+
+    # sobreescribimos este metodo que implementa TemplateView y heredamos
+    def get_context_data(self, **kwargs):
+        # aqui recibimos el contexto que ya implementa TemplateView para el template
+        context = super().get_context_data(**kwargs)
+        # y aparte a los datos que ya implementa TemplateView añadir los nuestros
+        # es decir los que queremos pasar nosotros al template para usarlos ahi
+
+        # Aqui añadimos nuestros datos al contexto que es un diccionario con los que ya implementa 
+        # django para el template
+        context['total_books'] = Book.objects.count()
+        return context # lo que retorna este metodo django lo carga como contexto a los templates
+    
+        # tener cuidado ajajjaa, de sobreescribir una key que ya implemente django como "view" que este la añade
+        # el get_context_data que heredamos y le da como valor la instancia misma de WelcomeView
+        
+# Para no implementar Logica desde cero con View, vamos a reutilizar ListView
+class BookListView(ListView):
+    # atributo que indica a la View de que modelo debe listar los objetos
+    model = Book
+    # Especificamos que template debe pasar el contexto o los objetos que queremos renderizar
+    template_name = "minilibrary/books.html"
+    # Si no se especifica el template donde se pasaran los objetos a listar, por defecto django busca en la carpeta
+    # de la app en templates un template que se llame como el modelo_list.html Ej: para esta app buscaria en templates
+    # carpeta llamada minilibrary un template book_list.html y a ese pasaria los objetos.
+    
+    # especificamos con que nombre se enviaran los objetos al template
+    context_object_name = "books" # cuando no lo asignamos el nombre por defecto es model_list, ej: book_list
+
+    # indicamos que queremos los objetos paginados, e indicamos el numero de paginas
+    paginate_by = 5 # el object name books se pasara solo con 5 objetos pq es la pagina
+
+# Para no implementar Logica desde cero con View, vamos a reutilizar DetailView
+class BookDetailView(DetailView):
+    # Especificar de que modelo obtendra el objeto la view
+    model = Book
+    # Indicar que template se va a renderizar con los detalles del objeto
+    template_name = "minilibrary/detail_book.html"
+    # Indicar el nombre con el que indentificaremos al objeto dentro del template
+    context_object_name = "book"
+    # Si usamos slug en vez de el id o primary key para buscar el objeto debemos
+    # indicar el nombre del campo del modelo que contiene el slug
+    slug_field = "slug"
+    slug_url_kwarg = "slug"
+    # ERROR 404 se manda automaticamente el template 404.html si no se encuentra el recurso
+    # al cual se esta consultando en el request a la url
+
+# Para no implementar Logica desde cero con View, vamos a reutilizar y extender CreateView
+class ReviewCreateView(CreateView):
+    # Especificar el modelo donde se almacenara el objeto
+    model = Review
+    # Atributo que usa CreateView para definir que formulario usara para obtener los datos del objeto a crear
+    form_class = ReviewModelForm
+    # Indicamos el template HTML donde se renderizara el formulario para obtener los datos del objeto a crear
+    # en el template se pasa en el context el formulario con el nombre de form, para referenciarlo en el context del template
+    template_name = "minilibrary/add_review2.html"
+
+
+    # Este metodo definimos toda la logica que ejecutara la view si los datos proporcionados al formulario son validos, es decir .is_valid() es True
+    def form_valid(self, form):
+        # por defecto si no sobreescribimos el form_valid del padre este creara una instancia del modelo la almacenara
+        # en la tabla del modelo y asignara la intancia a self.object y retornara lo que retorna su metodo padre
+        # es un HttpResponseRedirect a la success_url que se especifique. asi que si no lo sobrescribimos automaticamente
+        # almacena el objeto y lo redirecciona a la url que le pasemos en success_url a la clase.
+        # Ahora saber esta información igual es util por si queremos utilizar el form_valid del padre dentro de nuestro
+        # form_valid que estamos sobrescribiendo, o simplemente no llamarlo y que nuestra view ejecute su propia logica 
+        # y redireccione o haga lo que quiera. 
+        # Esto es fundamental ya que podemos manipular la instancia que creamos a partir de los datos del formulario
+        # como por ejemplo aqui aun esta incompleta le falta que le asignemos el book y user al cual esta asociada la review
+        # asi que podemos asignarcelos y luego pasar el formulario al form_valid del padre para que haga la tarea por defecto
+        # que es almacenar el objeto en el Modelo.
+        
+        # El atributo kwargs de nuestra view contiene los valores que se envian en los parametros de las urls dinamicas
+        book_id = self.kwargs.get("pk")
+        # Obtengo el objeto o libro del modelo al cual asociaremos a este objeto review
+        book = get_object_or_404(Book, pk=book_id)
+        # Obtenemos el usuario que envio el request con los datos del formulario para asociarle a el la review
+        # ya que el la esta agregando
+        user = self.request.user if self.request.user.is_authenticated else User.objects.first()
+
+        # Aqui podemos usar el atributo instance para obtener el objeto o review que estamos creando o se almacenara
+        # ya que despues de que se valida el formulario .is_valid() a la instancia de form.instance se le rellena con los datos
+        # validados o cleaned, antes de validar esta la instancia vacia.
+        review = form.instance
+
+        # asignamos los datos faltantes a la review
+        review.book = book
+        # asociamos la review al usuario que relleno el formulario y mando el request
+        review.user = user
+        print("MISMOS OBJETOS: ", review is form.instance)
+        # cargamos mensajes de success para el siguiente render si es que se almacena correctamente
+        messages.success(self.request, "Review añadida exitosamente")
+
+        # Aqui se espera una respuesta HTTP para enviar el usuario, esta la retorna el form_valid del padre y ademas este
+        # almacena la instance del formulario en el modelo, da igual si aqui le asignamos los valores con review ya que
+        # al asignarle a la variable review la referencia de form.instance ambos apuntan al mismo objeto que es el almacena
+        # en el modelo la View de django.
+        return super().form_valid(form)
+
+
+    def form_invalid(self, form):
+        messages.error(self.request, "Datos invalidos", "danger")
+        return super().form_invalid(form)
+    
+    # Este metodo es el que usa una View para obtener la url donde se redireccionara al usuario luego
+    # que registre el objeto o review exitosamente en el modelo
+    def get_success_url(self):
+        # usamos reverse_lazy o peresoso que permite obtener la url o path completo de una url por su nombre
+        # y luego en su parametro kwargs pasamos todos los parametros y valores que pasaremos a esos parametros
+        # de la url si es una url dinamica.
+        return reverse_lazy('book_detail', kwargs={"pk": self.kwargs.get("pk")})
+    
+
+    # Modificamos el que como obtendra el formulario la view antes de que lo valide, ya que debemos al formulario que crea con los datos
+    # enviados por el request a su metodo post() añadirle como atributo el request, ya que la clase que usamos para definir el formulario
+    # modificamos su codigo interno de su constructor, y clean que ocupan el request, asi que debemos pasarselo en el atributo
+    def get_form(self, form_class = None):
+        form = super().get_form(form_class)
+        form.request = self.request
+        return form
+
+# class-based view que implementa la logica para actualizar los datos de un objeto existente: UpdateView
+class ReviewUpdateView(UpdateView):
+    # extendemos para nuestro caso de uso
+    model = Review
+    form_class = ReviewModelForm
+    # reutilizamos el template, ya que este renderiza el formulario para ingresar los datos de rating y text
+    # que son los mismos que necesitaremos para actualizar la review
+    template_name = "minilibrary/add_review2.html"
+
+    def get_form(self, form_class = None):
+        form =  super().get_form(form_class)
+        form.request = self.request
+        return form
+
+    # por defecto usa el get_queryset de todas las view genericas, que devuelve todos los objetos del modelo, pero internamente
+    # UpdateView implementa la logica para obtener solo el objeto que tenga como pk o id o slug el valor que se envia por la url
+    # a alguno de esos parametros (pk, id, slug) y entonces el sabe que ese objeto que tenga es el que debe actualizar, entonces
+    # si se recibe un request con metodo get carga todos esos datos en el formulario para que se renderize con los datos que ya
+    # se tienen para el objeto a editar en la DB, si recibe request metodo POST simplemente va a buscar el objeto para rellenar
+    # el formulario en los campos que no se proporciono datos por el usuario los valores que ya tenia el objeto para que cuando se haga .save
+    # como ya existe se actualizen solo los datos que sean distintos
+    def get_queryset(self):
+        queryset =  super().get_queryset()
+        # porque no get ? pq esto si o si debe devolver un queryset jajaja o si no la view que implementa este metodo podria aplicar
+        # un metodo que solo tienen los queryset si uso get ahora obtenemos el objeto luego el afuera aplicara get pensando que es un queryset
+        # ya que asi se llama el metodo y abra error que no se encuentra ese metodo definido en el objeto
+        queryset =  queryset.filter(user__id=self.request.user.pk) 
+        # retornamos un queryset solamente con las review asociadas a ese usuario y que nuestra vista solo puede devolver una review
+        # asociada al usuario, esto es muy importante en seguridad pq si no cualquier usuario autenticado en el sistema, podria
+        # mandar el id de otra review que no sea de el y si por defecto UpdateView obtiene la review del id que se manda por url
+        # podria obtener la de otro usuario, pero si le devolvemos un queryset con solo las que estan asociadas a el, si aplica .get
+        # UpdateView al queryset dara un 404 ya que el id que mando el usuario es de una review que o le pertenece y el queryset
+        # solo tiene las de el :v asi no nos vulnera si sabe modificar el valor que identifica la review que se quiere actualizar
+        # en la url.
+        return queryset
+    
+    
+
+    # Como la UpdateView hace la operación de actualizar los datos de un objeto del modelo review
+    # no es necesario especificar a que book o autor hay que asociar esta review pq esta ya al momento que se crea
+    # se asocio a un libro y autor, updateview automaticamente los datos que no hayan sido proporcionados por el usuario
+    # en el formulario, los rellena con el valor actual que tiene el objeto para esos campos. entonces como solamente
+    # obtenemos el rating y text del usuario el form se le actualizan solo esos campos y a los demas los rellena con los datos
+    # que ya tenia en la base de datos.
+    def form_valid(self, form):
+        messages.success(self.request, "Review actualizada correctamente")
+        return super().form_valid(form) # este devuelve la redireccion a la url del metodo get_success_url
+    
+    # Logica que se ejecuta en caso de que los datos que se envian al formulario para actualizar el objeto no sean validos
+    def form_invalid(self, form):
+        messages.error(self.request, "Datos invalidos")
+        return super().form_invalid(form)
+
+    # Lo que retorne este metodo es la url que usara la View para redireccionar al usuario si actualizo correctamente
+    def get_success_url(self):
+        queryset = self.get_queryset().select_related("book")
+        review = get_object_or_404(queryset, pk=self.kwargs.get('pk'))
+        # la url a la cual redireccionara al usuario sera a la book_detail y esta recibe el id del libro del cual mostrar sus detalles
+        # para eso le pasamos el id del libro al cual esta asociado el review entonces lo devuelve al libro
+        return reverse_lazy('book_detail', kwargs={'pk': review.book.id}) # /minilibrary/books/9/ | 9 = <int:pk>
+        # esa era mi version para devolver la url que debe redireccionar pq no sabia pero aqui si se peude acceder a la instancia
+        # que se queire actualizar con self.object.book.id
+
+        # otra forma es en el modelo de cada instancia o objeto de este modelo tenga un metodo get_absolute_url que permita obtener su url
+        # con un return reversed('book_detail', kwargs={'pk': self.pk})
+
+# class-based view que implementa la logica para eliminar un objeto de un modelo en especifico
+class ReviewDeleteView(DeleteView):
+    # definimos el modelo del cual eliminara un objeto la DeleteView
+    model = Review
+    # Este template es el que envia como respuesta si recibe la view un http request GET de que se quiere eliminar un objeto
+    template_name = "minilibrary/review_confirm_delete.html"
+    # url a la que se redireccionara si se elimina con exito el objeto que solicita el usuario
+    success_url = reverse_lazy('list_books')
+
+    # Se encarga de pasar el queryset a la view, donde el buscara el objeto a eliminar
+    def get_queryset(self):
+        # No regresamos para que busque en todas las reviews, si no solo en las reviews que esten asociadas al usuario
+        # que tenga como id el mismo id del usuario que mando el request
+        return super().get_queryset().filter(user__id=self.request.user.pk)
+    
+    # Este es el metodo que manda a llamar la view cuando recibe un http request POST con el id del objeto a eliminar
+    def delete(self, request, *args, **kwargs):
+        # cargamos un mensaje en el sistema para que en el siguiente render se muestre, el siguiente render es es la pagina
+        # de todos los libros success url.
+        messages.success(self.request, "Tu review fue eliminada")
+
+        # El metodo delete del padre o por defecto obtiene la instancia get_object a eliminar obtiene la sucess url
+        # con get_succes_url y luego elimina la instancia o objeto que quiere eliminar el usuario pasandolo al metodo .delete()
+        # que implementan loso objetos de un modelo (Model), entonces es eliminada en la base de datos y luego retorna una redireccion
+        # a la sucess url que definimos y este delete retornara el response a la sucess.url
+        return super().delete(request, *args, **kwargs)
+
+
+
+
+
 def index(request):
     try:
         # Cuando se ejecute la url minilibrary/ o se acceda a ella, iremos a buscar todos los libros
@@ -103,7 +354,6 @@ def index(request):
         raise Http404()
 
 
-
 def recomendar_libro(request, book_id):
     book = get_object_or_404(Book, id=book_id)
     form = ReviewSimpleForm(request.POST or None)    
@@ -124,11 +374,11 @@ def recomendar_libro(request, book_id):
             messages.error(request, "Corrige los errores del formulario")
     return render(request, 'minilibrary/add_review.html', {'form': form, 'book': book})
 
-
     
 def add_review(request, book_id):
     book = get_object_or_404(Book, id=book_id)
-    form = ReviewModelForm(request.POST or None)
+    # debe ser un None, no puede ser un string vacio lo que le mandemos
+    form = ReviewModelForm(request, request.POST if request.POST else None)
 
     # form implementa iter, asi que podemos iterarlo, donde cada elemento es un field o campo del formulario
     # en su formato html,  form.visible_fields() -> trae los campos visibles solamente que son los que se mostraran en el html
@@ -140,9 +390,8 @@ def add_review(request, book_id):
         print(field.label_tag())
         # acceder al campo en si, el input en formato html
         print(field) # su version imprimible es un string con el html
-
     if request.method == 'POST':
-        
+        print(form.is_valid())
         if form.is_valid():
             # commit False, permite que en vez de crear un objeto del modelo y guardarlo en su tabla, simplemente
             # nos regrese el objeto del modelo con los campos que tengan valor.
@@ -154,7 +403,18 @@ def add_review(request, book_id):
             # Almacenamos la review en la tabla de su modelo Review
             review.save()
             messages.success(request, 'Review añadida exitosamente')
-            redirect('add_review', book_id=book.id)
+            # Recordar que la view retorne lo que retorna redirect, ya que este retorna un HttpResponseRedirect que es la respuesta
+            # http que la view debe responder todo lo que retorna la view se manda como respuesta al cliente.
+            return redirect('add_review', book_id=book.id)
         else:
-            messages.error(request, 'Proporciona los datos correctos de los campos del formulario')
+            messages.error(request, 'Proporciona los datos correctos de los campos del formulario', "danger")
     return render(request, 'minilibrary/add_review2.html', {'form': form, 'book': book})
+
+
+
+# View que vinculamos a url, para consultar desde el navegador y probar que el middleware calcule cuanto tiempo tarda
+# en regresarle el response despues de haberle pasado el request que se le envio.
+def time_test(request):
+    # sleep(segundos), bloquea la ejecución del hilo por los segundos que nosotros le proporcionemos
+    time.sleep(2)
+    return HttpResponse("<h1>View Time Test</h1>")

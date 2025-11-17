@@ -27,14 +27,33 @@ INSTALLED_APPS = [
     'minilibrary',
 ]
 
+
 MIDDLEWARE = [
+    # Este middleware implementa medidas de seguridad como Strict Transport Security
     'django.middleware.security.SecurityMiddleware',
+    # Este middleware permite cosas como poder usar request.session en las view
     'django.contrib.sessions.middleware.SessionMiddleware',
+    # Este middleware hace tareas variadas como la de añadir slash si a una url que consulta el usuario le falta
+    # como /productos pero en el sistema existe /productos/, le añade el slash final para que no haya error y coincida con la que existe 
     'django.middleware.common.CommonMiddleware',
+    # Middleware encargado de verificar que si se recibe un request con POST o datos, estos vengan con un token Csrf 
+    # Valido para poder pasarlo a la View
     'django.middleware.csrf.CsrfViewMiddleware',
+    # Este middleware es el que permite usar un request.user, ya que es el encargado de verificar que el usuario que esta enviando request
+    # esta autenticado o no
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    # Este middleware permite cargar los mensajes en las respuestas HTTP 
     'django.contrib.messages.middleware.MessageMiddleware',
+    # Este middleware defiende nuestra aplicación web de clickjacking, permitiendo que configuremos si nuestra aplicación web se puede
+    # añadir a otra a traves de un iframe, con X_FRAME_OPTIONS = "DENY"  # o "SAMEORIGIN" en el settings.py podemos configurarla, asi
+    # este añadira X-FRAME-OPTIONS en el encabezado de el response HTTP para que no pueda el template enviado ser incrustado en un iframe
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'minilibrary.middleware.TimingViewMiddleware',
+    'minilibrary.middleware.BlockIpAddressMiddleware',
+    # 'minilibrary.middleware.ValidationHourMiddleware',
+    # 'minilibrary.middleware.OfficeHourOnlyMiddleware'
+    'minilibrary.middleware.RequireLoginMiddleware'
+    
 ]
 
 # Ruta del modulo que tiene las urls que respondera el proyecto

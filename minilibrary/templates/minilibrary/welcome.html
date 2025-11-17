@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+<!--Templates con contenido estatico, no renderizan datos ni logica, lo unico que se renderizan
+son los tag como urls, static, etc. pero el contenido es estatico la mayoria de las veces-->
+
+{% block title %}
+    Bienvenidos
+{% endblock title %}
+    
+
+{% block content %}
+    <h2>Bienvenidos a la app Minilibrary</h2>
+    <p>Explora nuevos libros y escribe tus reseñas</p>
+    <!--Podemos usar el context que retorna el metodo de nuestra View en el template-->
+    <p>Tenemos un total de <b>{{total_books}}</b> libros</p>
+{% endblock content %}
+    

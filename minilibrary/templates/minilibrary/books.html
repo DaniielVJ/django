@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+
+{% block title %}
+    Libros
+{% endblock title %}
+    
+
+{% block content %}
+        <h2>Libros:</h2>
+        <ul>
+            {% for book in books %}
+              <a href="{% url 'book_detail' pk=book.id %}"> <li>{{book.title}} - {{book.author.name}}- {{book.pages}}</li> </a>
+            {%empty%}
+                <li>Sin libros disponibles</li>
+            {% endfor %}
+        </ul>
+
+    <!--Variable que carga por el contexto por defecto la view, que sirve para preguntar si los objetos vienen
+    paginados-->
+    {% if is_paginated %}
+        <div>
+            <!-- Variables definidas por defecto por django para trabajar sobre la pagina y paginador.
+            Asi pudiendo crear el menu de paginacion en HTML para el usuario-->
+
+            {% if page_obj.has_previous %}
+                <a href="?page=1">Primera</a>
+                <!--Añade el numero de la pagina anterior que estemos renderizando-->
+                <a href="?page={{page_obj.previous_page_number}}">Anterior</a>
+            {% endif %}
+                
+            <span>Página {{page_obj.number}} de {{page_obj.paginator.num_pages}}</span>
+            
+            {% if page_obj.has_next %}
+                <a href="?page={{page_obj.next_page_number}}">Siguiente</a>
+                <a href="?page={{page_obj.paginator.num_pages}}">Ultima</a>
+            {% endif %}
+        </div>
+       <h3>Libros Totales: {{page_obj.paginator.count}}</h3>
+            
+    {% endif %}
+    
+{% endblock content %}

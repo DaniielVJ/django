@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+
+{% block title %}
+    Eliminacion
+{% endblock title %}
+    
+
+
+{% block content %}
+        <!--En el template de confirmacion de eliminacion de un objeto de un modelo, DeleteView pasa de su contexto
+        al objeto en el contexto del template con el nombre de object-->
+        <h2 style="text-align:center;">Seguro que quieres eliminar tu review de  {{object.book.title}}</h2>
+        <center>
+            <!--Si estamos en el template de confirmacion no especificamos url, ya que se mandara con POST a la misma
+            url del template que es la misma para eliminar solo que el template se devolvio con GET-->
+            <form method="POST">
+                {% csrf_token %}
+                <a href="{% url 'book_detail' pk=object.book.id %}" class="btn btn-primary">Cancelar</a>
+                <input type="submit" value="Confirmar" class="btn btn-danger"/>
+            </form>
+        </center>
+
+{% endblock content %}

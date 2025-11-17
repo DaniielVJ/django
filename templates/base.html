@@ -26,7 +26,7 @@
             <!--Iteramos y renderizamos todos-->
             {% for message in messages %}
             <!--el tags devuelve si es de success, error, etc. y mostraria el diseño de bootstrap adecuado-->
-                <div class="alert alert-{% if message.tags == 'error' %}danger {% else %}{{message.tags}}{%endif%}"> {{message}}</div>
+                <div class="alert alert-{{message.tags}}"> {{message}} {{message.tags}}</div>
                 
             {% endfor %}
                 
