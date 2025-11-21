@@ -99,7 +99,9 @@ class BookAdmin(admin.ModelAdmin): # Debe heredar de ModelAdmin, convencion teng
     def has_add_permission(self, request):
         return request.user.is_superuser
     
-    # Aqui definimos que si tiene el permiso de modificar, para modificar este modelo
+    # Estos metodos sirven para indicar si el que envio el request puede ejecutar tareas de añadir o modificar permisos
+    # si retornan True los que manden request pueden realizar esas acciones por eso debemos hacer evaluaciones antes
+    # de retornar True en este caso se retorna True si tienen habilitado is_superuser o is_staff
     def has_change_permission(self, request, obj=None):
         return request.user.is_staff
 
@@ -128,6 +130,10 @@ class LoanAdmin(admin.ModelAdmin):
     readonly_fields = ('loan_date',) 
     actions = (mark_loan_as_returned, show_return_date)
     raw_id_fields = ('user', 'book')
+    
+
+
+
 
 
 # Aqui registramos los modelos

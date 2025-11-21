@@ -19,6 +19,14 @@
     <!--Los includes son codigo reutilizable para una app, templates base del proyecto, etc.-->
     {% include 'includes/header.html' %}
 
+    {% if request.user.is_authenticated %}
+    <!--LogoutView, requiere un http request con el metodo POST ya que en su metodo def post(self) tiene programad la logica
+    de cerrar la sesion. La unica forma que tenemos para enviar a django un metodo distinto a GET es con los formularios -->
+        <form action="{% url 'logout' %}" method="POST">
+            {% csrf_token %}
+            <button type="submit">Cerrar Sesión</button>
+        </form>
+    {% endif %}
 
 
     <!--Si hay mensajes para renderizar o mostrar que se cargue el siguiente html-->

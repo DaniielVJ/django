@@ -52,7 +52,7 @@ MIDDLEWARE = [
     'minilibrary.middleware.BlockIpAddressMiddleware',
     # 'minilibrary.middleware.ValidationHourMiddleware',
     # 'minilibrary.middleware.OfficeHourOnlyMiddleware'
-    'minilibrary.middleware.RequireLoginMiddleware'
+    # 'minilibrary.middleware.RequireLoginMiddleware'
     
 ]
 
@@ -145,3 +145,23 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Si queremos definir nuestro propio modelo usuario debemos definirlo en esta constante
 # AUTH_USER_MODEL = 'miapp.models.MyUserModel'
 
+
+# Define cuanto tiempo dura una session en el sistema, el valor esta en segundos
+SESSION_COOKIE_AGE = 3600
+# Esto define si expira o se elimina la session del usuario se cierra el navegador
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False # False: no expira, True: si expira
+# Esta configuracion define que cada vez que envie un request, si tiene una sesion activa se renovara
+# su tiempo de expiracion al que hayamos definido, es decir si es una hora si envia un request vuelve actualizarce a 1 hora mas
+SESSION_SAVE_EVERY_REQUEST = True # Con esto si el usuario envia una session esta se almacenara en cada request, provocando
+# que si en cada request que se envie se almacena, django al volver almacenarla renuevo su tiempo de expiracion aplazando
+# al tiempo que da por defecto
+
+
+# DONDE REDIRIGIRA EL LOGIN CUANDO EL USUARIO SE AUTENTIQUE Y SUS CREDENCIALES SEA VALIDAS
+LOGIN_REDIRECT_URL = 'list_books'
+
+# URL DONDE REDIRIGIRA AL USUARIO CUANDO CIERRE SESION
+LOGOUT_REDIRECT_URL = 'login'
+
+# URL DEL LOGIN, PARA CUANDO SE EJECUTEN FUNCIONES QUE REDIRIGEN AL LOGIN ESTAS SEPAN DONDE ESTA O CUAL SU URL
+LOGIN_URL = 'login'

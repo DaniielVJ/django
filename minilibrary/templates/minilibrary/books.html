@@ -8,9 +8,18 @@
 
 {% block content %}
         <h2>Libros:</h2>
+
+        <div>
+            <hr>
+                {% if last_book %}
+                <p>Ultimo libro visitado: <a href="{% url 'book_detail' pk=last_book.id %}">{{last_book}}</a></p>
+                {% endif %}
+            <hr>
+        </div>
+        
         <ul>
             {% for book in books %}
-              <a href="{% url 'book_detail' pk=book.id %}"> <li>{{book.title}} - {{book.author.name}}- {{book.pages}}</li> </a>
+              <a href="{% url 'book_detail' pk=book.id %}"> <li>{{book}} - {{book.author.name}}- {{book.pages}}</li> </a>
             {%empty%}
                 <li>Sin libros disponibles</li>
             {% endfor %}

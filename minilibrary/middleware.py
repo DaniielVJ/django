@@ -87,7 +87,7 @@ class OfficeHourOnlyMiddleware:
         return self.get_response(request)
 
 
-EXCEPT_URLS = ['/login/', '/admin/', '/register/']
+EXCEPT_URLS = ['/minilibrary/login', '/admin/', '/register/']
 
 class RequireLoginMiddleware:
     

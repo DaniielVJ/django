@@ -1,6 +1,6 @@
 import time
 from django.shortcuts import render, get_object_or_404, redirect
-from django.http import Http404, HttpResponse
+from django.http import Http404, HttpResponse, HttpResponseForbidden
 from django.urls import reverse_lazy
 # Poder hacer condiciones con operadores logicos en los filtros
 from django.db.models import Q
@@ -10,6 +10,12 @@ from django.contrib.auth import get_user_model
 from django.contrib import messages
 from django.views import View
 from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView, DeleteView
+# Este decorador lo importamos, para aplicarlos a las view, que necesiten login o autenticacion 
+from django.contrib.auth.decorators import login_required, permission_required
+# Esta clase la importamos, para aplicarla a las view class que requieren login antes de usarse
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+
+
 from .utils import funciones
 from .models import Book, Review
 from .forms import ReviewSimpleForm, ReviewModelForm
@@ -42,7 +48,9 @@ class HelloCBV(View):
         return HttpResponse("Saludos desde una view basada en clases")
         
 
-class WelcomeView(TemplateView):
+# Ahora esta view requiere login, colocamos loginrequiredmixin para que tenga prioridad de las demas clases
+# y ninguna pueda sobreescribir su dispatch, que se encarga de solicitar Login, tampoco nosotros :v solo si sabemos lo que hacemos.
+class WelcomeView(LoginRequiredMixin, TemplateView):
     # sobreescribimos este atributo, con el nombre del template que debe renderizar
     # esta view cuando una url lo mande a llamar porque recibio un request http get
     template_name = "minilibrary/welcome.html"
@@ -78,8 +86,16 @@ class BookListView(ListView):
     # indicamos que queremos los objetos paginados, e indicamos el numero de paginas
     paginate_by = 5 # el object name books se pasara solo con 5 objetos pq es la pagina
 
+    def get_context_data(self, **kwargs):
+        kwargs = super().get_context_data(**kwargs)
+        last_viewed_book = self.request.session.get('last_viewed_book')
+        kwargs['last_book'] = self.model.objects.get(pk=last_viewed_book) if  last_viewed_book else ''
+        return kwargs
+
+
+
 # Para no implementar Logica desde cero con View, vamos a reutilizar DetailView
-class BookDetailView(DetailView):
+class BookDetailView(LoginRequiredMixin, DetailView):
     # Especificar de que modelo obtendra el objeto la view
     model = Book
     # Indicar que template se va a renderizar con los detalles del objeto
@@ -92,6 +108,17 @@ class BookDetailView(DetailView):
     slug_url_kwarg = "slug"
     # ERROR 404 se manda automaticamente el template 404.html si no se encuentra el recurso
     # al cual se esta consultando en el request a la url
+
+    # Sobreescribimos el metodo get que implementa por defecto la DetailView
+    def get(self, request, *args, **kwargs):
+        if request.user.has_perm('minilibrary.view_book'):
+            response = super().get(request, *args, **kwargs)
+            request.session['last_viewed_book'] = self.object.id
+            return response
+        else:
+            return HttpResponseForbidden("No tienes permiso para ver los detalles de un libro")
+
+
 
 # Para no implementar Logica desde cero con View, vamos a reutilizar y extender CreateView
 class ReviewCreateView(CreateView):
@@ -234,7 +261,7 @@ class ReviewUpdateView(UpdateView):
         # con un return reversed('book_detail', kwargs={'pk': self.pk})
 
 # class-based view que implementa la logica para eliminar un objeto de un modelo en especifico
-class ReviewDeleteView(DeleteView):
+class ReviewDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     # definimos el modelo del cual eliminara un objeto la DeleteView
     model = Review
     # Este template es el que envia como respuesta si recibe la view un http request GET de que se quiere eliminar un objeto
@@ -242,6 +269,12 @@ class ReviewDeleteView(DeleteView):
     # url a la que se redireccionara si se elimina con exito el objeto que solicita el usuario
     success_url = reverse_lazy('list_books')
 
+    # Definimos que permiso debe tener un usuario para poder ejecutar esta class view, multiples permisos se pasan en una tuple
+    permission_required = 'minilibrary.delete_review' 
+
+    raise_exception = True
+
+    
     # Se encarga de pasar el queryset a la view, donde el buscara el objeto a eliminar
     def get_queryset(self):
         # No regresamos para que busque en todas las reviews, si no solo en las reviews que esten asociadas al usuario
@@ -262,8 +295,7 @@ class ReviewDeleteView(DeleteView):
 
 
 
-
-
+@login_required
 def index(request):
     try:
         # Cuando se ejecute la url minilibrary/ o se acceda a ella, iremos a buscar todos los libros
@@ -374,7 +406,8 @@ def recomendar_libro(request, book_id):
             messages.error(request, "Corrige los errores del formulario")
     return render(request, 'minilibrary/add_review.html', {'form': form, 'book': book})
 
-    
+@login_required
+@permission_required(['minilibrary.add_review'])
 def add_review(request, book_id):
     book = get_object_or_404(Book, id=book_id)
     # debe ser un None, no puede ser un string vacio lo que le mandemos
@@ -418,3 +451,28 @@ def time_test(request):
     # sleep(segundos), bloquea la ejecución del hilo por los segundos que nosotros le proporcionemos
     time.sleep(2)
     return HttpResponse("<h1>View Time Test</h1>")
+
+# View que recibe un request y lee si tiene una sesion activa o le crea una 
+def visit_counter(request):
+    # django siempre crea una session en memoria para todos los requests que recibe de un navegador, pero no la registra
+    # en la base de datos ni la envia como cookie al usuario o navegador hasta que no se escriban datos en ella
+    # por lo tanto aqui accedemos a la seccion que se crea para un request y vemos si es que tiene datos escritos en ella
+    # visitas, ya que en el codigo la manejamos como diccionario, si no tiene valor retornamos 0 y le escribimos la llave visitas
+    # con ese valor, al escribirle valor django ahora esa session sabe que tiene que registrarla pq tenemos datos asociados
+    # a ese navegador y ahora debemos hacer una trazabiliad o seguimiento a ese navegador usando la session. 
+    visits = request.session.get('visitas', 0)
+    visits += 1
+    request.session['visitas'] = visits
+
+    # Este metodo permite establecer una expiracion a una sesion en especifico que ejecute esta view, es decir
+    # todas las sessiones que ejecutan la view solo duraran 600 segundos activas y luego expiraran.
+    request.session.set_expiry(600)
+    # valores que puede recibir:
+    # 600 -> 10 min, ;  0 -> Al cerrar el navegador -> ; None -> duracion por defecto
+    return HttpResponse(f"Has visitado esta pagina {visits} veces")
+
+
+
+# 
+
+
