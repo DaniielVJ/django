@@ -44,11 +44,16 @@ class Book(models.Model):
     isbn = models.CharField(max_length=100) 
     # Establecemos este tipo de campo, como el encargado de asociar a cada objeto de este modelo
     # con muchos objetos de otro modelo
-    genres = models.ManyToManyField(Genre, related_name="books") # Indicamos con que modelo o tabla es la relacion de mucho a muchos
-
+    genres = models.ManyToManyField(Genre, related_name="books") # Indicamos con que modelo o tabla es la relacion de mucho a muchos/
     # Relacion muchos a muchos pero usando un modelo personalizado como tabla intermedia
     recommendation_by = models.ManyToManyField(User, through="Recommendation", related_name="recommendations")
     
+    # Indicamos la carpeta donde se subira el archivo, que es books/covers
+    cover = models.ImageField(upload_to='books/covers/', blank=True, null=True)
+
+
+
+
     class Meta:
         # Define con que nombres se mostrara el modelo en el panel web del django admin
         verbose_name = 'Libro' # singular

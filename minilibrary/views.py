@@ -18,7 +18,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 
 from .utils import funciones
 from .models import Book, Review
-from .forms import ReviewSimpleForm, ReviewModelForm
+from .forms import ReviewSimpleForm, ReviewModelForm, BookForm
 
 
 User = get_user_model()
@@ -473,6 +473,18 @@ def visit_counter(request):
 
 
 
-# 
+# view para añadir un libro
+def add_book(request):
+    if request.method == 'POST':
+        # Instanciamos el formulario, y lo rellenamos con los datos y archivos que se enviaron
+        form = BookForm(data=request.POST, files=request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Book add succesfully')
+            return redirect('list_books')
+        messages.error(request, form.errors, 'danger')
+    else:
+        form = BookForm()
+    return render(request, 'minilibrary/add_book.html', {'form': form})
 
 

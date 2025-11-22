@@ -1,4 +1,6 @@
 from django.urls import path
+from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib.auth.views import LoginView, LogoutView
 from . import views
 
@@ -21,5 +23,10 @@ urlpatterns = [
     path('middleware/time', views.time_test, name="view_duration"),
     path('counter/', views.visit_counter),
     path('login/', LoginView.as_view(), name="login"),
-    path('logout/', LogoutView.as_view(), name="logout")
+    path('logout/', LogoutView.as_view(), name="logout"),
+    path('books/add', views.add_book, name='add_book')
 ]
+
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

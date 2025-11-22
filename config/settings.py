@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 
@@ -165,3 +166,10 @@ LOGOUT_REDIRECT_URL = 'login'
 
 # URL DEL LOGIN, PARA CUANDO SE EJECUTEN FUNCIONES QUE REDIRIGEN AL LOGIN ESTAS SEPAN DONDE ESTA O CUAL SU URL
 LOGIN_URL = 'login'
+
+
+# url a las que hay que mandar request para servir archivos multimedia
+MEDIA_URL = '/media/'
+# Es la carpeta raiz o de su raiz donde se empezaran a buscar los archivos multimedias que se soliciten con la url /media/
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+

@@ -1,6 +1,6 @@
 # Modulo donde definiremos todos nuestros formularios usados para esta app
 from django import forms
-from .models import Review
+from .models import Review, Book
 from django.contrib import messages
 
 # Una clase que hereda de Form representa a un formulario
@@ -98,5 +98,26 @@ class ReviewModelForm(forms.ModelForm):
 
 
 
+class BookForm(forms.ModelForm):
+    class Meta:
+        model = Book
+        fields = ['title', 'cover', 'pages', 'isbn', 'author', 'genres', 'publication_date']
 
 
+    
+    # Creamos metodo clean que ejecute is_valid para el campo cover que es de tipo File
+    def clean_cover(self):
+        file = self.cleaned_data.get('cover')
+        if not file:
+            return file
+        
+        # El size viene en bytes, entonces 2 bytes por 1024 son 2048bytes == 2KB y estos por 1024 es igual a 2MB y 1024 mas 2GB y asi.
+        if file.size > 2 * 1024 * 1024:
+            raise forms.ValidationError("El archivo no debe superar los 2MB")
+        
+        # Validar el formato de la imagen, si no se encuentra en los que solicitamos no dejar subir al servidor
+
+        if not file.content_type in ['image/jpeg', 'image/png']:
+            raise forms.ValidationError("Solo se aceptan imagenes en formato jpeg y png")
+        
+        return file

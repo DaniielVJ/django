@@ -19,7 +19,11 @@
         
         <ul>
             {% for book in books %}
-              <a href="{% url 'book_detail' pk=book.id %}"> <li>{{book}} - {{book.author.name}}- {{book.pages}}</li> </a>
+              <a href="{% url 'book_detail' pk=book.id %}"> <li>{{book}} - {{book.author.name}}- {{book.pages}}
+                {% if book.cover %}
+                    <img src="{{book.cover.url}}" alt="Portada del Libro" width="400px">
+                {% endif %}
+              </li></a>
             {%empty%}
                 <li>Sin libros disponibles</li>
             {% endfor %}
