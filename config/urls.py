@@ -17,6 +17,7 @@ urlpatterns = [
 
 # La funcion static, permite registrar una url y una carpeta para poder servir los archivos de esta usando la url
 if settings.DEBUG:
+    # Enlaza la url al path de un directorio en el servidor, donde se iran a buscar los archivos que se pidan por la url, igual como lo hace /static/ en las carpetas static
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) 
 
 configurar_panel_django_admin()
