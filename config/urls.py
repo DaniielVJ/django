@@ -15,6 +15,7 @@ urlpatterns = [
 ]
 
 
+# La funcion static, permite registrar una url y una carpeta para poder servir los archivos de esta usando la url
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) 
 
